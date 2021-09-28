@@ -1,7 +1,13 @@
 # Macaca_cornea_scRNAseq
 
-* Here is the code for our cornea project as described in the paper xxx. 
 
 
-The scripts for reproduce the results and relevant figures are deposited in the script directory.
+
+
+* This repository contains the code for analysis of single-cell RNA-seq data of xxx.
+
+* All data are available under the GEO accession GSExxxxxx. Fully processed Seurat (v3) objects are available at the public Google Drive link here
+Get in touch if there's anything else you may want or if you have any questions - zhongjiawei1[AT]hotmail.com
+
+
 
