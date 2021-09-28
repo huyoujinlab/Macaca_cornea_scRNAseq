@@ -31,6 +31,8 @@ library(systemPipeR)
 
 combined_cca_40_300 <- readRDS("20210928cornea1.RDS")
 combined_cca_40_300 <- subset(combined_cca_40_300,subset = var != "Young")
+call <- data.frame(msigdbr())
+call <- call[call$gs_cat %in% c("H","C2","C3","C5"),c(3,5,13)]
 
 
 
@@ -38,6 +40,7 @@ combined_cca_40_300 <- subset(combined_cca_40_300,subset = var != "Young")
 
 ## Fig. 5a
 DimPlot(combined_cca_40_300,group.by = "var",split.by = "var")
+
 
 
 
@@ -116,10 +119,6 @@ TDC.diff <- FindMarkers(combined_cca_40_300.gd, ident.1 = "TDC_DM", ident.2 = "T
 
 
 
-
-
-
-
 ## Fig. 5d & Fig. 5e
 
 LSCLPC.diff.all <- FindMarkers(combined_cca_40_300.gd, ident.1 = "LSC/LPC_DM", ident.2 = "LSC/LPC_CTRL", verbose = FALSE, logfc.threshold = 0, min.pct = 0)
@@ -169,7 +168,6 @@ a <- as.data.frame(table(c(data.frame(gsea.kegg.LSCLPC)[data.frame(gsea.kegg.LSC
                            data.frame(gsea.kegg.TDC)[data.frame(gsea.kegg.TDC)$pvalue<=0.05 & data.frame(gsea.kegg.TDC)$NES>0,]$Description
 )))
 
-# Fig. 5d
 vennPlot(overLapper(list("LSCLPC upregulated pathway"=data.frame(gsea.kegg.LSCLPC)[data.frame(gsea.kegg.LSCLPC)$pvalue<=0.05 & data.frame(gsea.kegg.LSCLPC)$NES>0,]$Description,
                          "TAC upregulated pathway"=data.frame(gsea.kegg.TAC)[data.frame(gsea.kegg.TAC)$pvalue<=0.05 & data.frame(gsea.kegg.TAC)$NES>0,]$Description,
                          "PMC upregulated pathway"=data.frame(gsea.kegg.PMC)[data.frame(gsea.kegg.PMC)$pvalue<=0.05 & data.frame(gsea.kegg.PMC)$NES>0,]$Description,
@@ -183,7 +181,6 @@ a <- as.data.frame(table(c(data.frame(gsea.kegg.LSCLPC)[data.frame(gsea.kegg.LSC
                            data.frame(gsea.kegg.TDC)[data.frame(gsea.kegg.TDC)$pvalue<=0.05 & data.frame(gsea.kegg.TDC)$NES<0,]$Description
 )))
 
-# Fig. 5e
 vennPlot(overLapper(list("LSCLPC downregulated pathway"=data.frame(gsea.kegg.LSCLPC)[data.frame(gsea.kegg.LSCLPC)$pvalue<=0.05 & data.frame(gsea.kegg.LSCLPC)$NES<0,]$Description,
                          "TAC downregulated pathway"=data.frame(gsea.kegg.TAC)[data.frame(gsea.kegg.TAC)$pvalue<=0.05 & data.frame(gsea.kegg.TAC)$NES<0,]$Description,
                          "PMC downregulated pathway"=data.frame(gsea.kegg.PMC)[data.frame(gsea.kegg.PMC)$pvalue<=0.05 & data.frame(gsea.kegg.PMC)$NES<0,]$Description,
@@ -203,18 +200,14 @@ combined_cca_40_300.gd <- AddModuleScore(combined_cca_40_300.gd, features = list
 
 df <- combined_cca_40_300.gd@meta.data
 
-
-## Fig. 5f
 ggboxplot(df, "celltype", "GLYCOLYSIS1", fill = "var" ) +
   stat_compare_means(aes(group=var), label = "..p.format..",method = "t.test")+
   labs(y="Glycolysis gene set score",x="")
 
-## Fig. 5g
 ggboxplot(df, "celltype", "OXIDATIVE_PHOSPHORYLATION1", fill = "var" ) +
   stat_compare_means(aes(group=var), label = "..p.format..",method = "t.test")+
   labs(y="OXPHOS gene set score",x="")
 
-## Fig. 5h
 ggboxplot(df, "celltype", "TCA1", fill = "var" ) +
   stat_compare_means(aes(group=var), label = "..p.format..",method = "t.test")+
   labs(y="TCA cycle gene set score",x="")
@@ -314,6 +307,8 @@ ggplot(data=df_up_new, mapping=aes(x=celltype,y=Description,color=log))+
 
 
 
+
+## Supplementary Fig. 5 c
 
 go_LSCLPC_dn_BP <- enrichGO(LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
                             pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
