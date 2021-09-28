@@ -75,7 +75,7 @@ combined_cca_40_300@meta.data$Phase <- factor(combined_cca_40_300@meta.data$Phas
 
 df <- combined_cca_40_300@meta.data
 df <- plyr::count(df[,c(5,9,12)])
-df$celltype <- factor(df$celltype,levels = c("LSC/LPC","TAC","PMC","TDC","ConjEC-1","ConjEC-2","MC","IC"))
+df$celltype <- factor(df$celltype,levels = c("LSC/LPC","TAC","PMC","TDC","ConjEC-1","ConjEC-2","MC"))
 ggplot(df,aes(x = var, y = freq,fill = Phase)) + 
   geom_bar(position = "fill",stat = "identity",width = 0.8,color="black") +
   theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
@@ -115,137 +115,6 @@ TDC.diff <- FindMarkers(combined_cca_40_300.gd, ident.1 = "TDC_DM", ident.2 = "T
 
 
 
-
-## Supplementary Fig. 5 a
-
-hm_up <- rbind(data.frame(gene=LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="LSCLPC"),
-               data.frame(gene=TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="TAC"),
-               data.frame(gene=PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="PMC"),
-               data.frame(gene=TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="TDC")
-)
-hm_up_new <- data.frame(gene=unique(hm_up$gene))
-hm_up_new[,2:5] <- 0
-hm_up_new <- hm_up_new[,-1]
-rownames(hm_up_new) <- unique(hm_up$gene)
-colnames(hm_up_new) <- c("LSCLPC","TAC","PMC","TDC")
-for (i in 1:nrow(hm_up)) {
-  hm_up_new[rownames(hm_up_new)==hm_up$gene[i],colnames(hm_up_new)==hm_up$celltype[i]] <- 1
-}
-hm_up_new <-rbind(hm_up_new[rowSums(hm_up_new)==4,],
-                  hm_up_new[rowSums(hm_up_new)==3,],
-                  hm_up_new[rowSums(hm_up_new)==2,],
-                  hm_up_new[rowSums(hm_up_new)==1,])
-hm_up_new <- hm_up_new[,1:4]
-pheatmap(hm_up_new,
-         color = colorRampPalette(c("grey", "red"))(5),cluster_cols = F,cluster_rows = F,show_rownames = F)
-
-hm_dn <- rbind(data.frame(gene=LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="LSCLPC"),
-               data.frame(gene=TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="TAC"),
-               data.frame(gene=PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="PMC"),
-               data.frame(gene=TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="TDC")
-)
-hm_dn_new <- data.frame(gene=unique(hm_dn$gene))
-hm_dn_new[,2:5] <- 0
-hm_dn_new <- hm_dn_new[,-1]
-rownames(hm_dn_new) <- unique(hm_dn$gene)
-colnames(hm_dn_new) <- c("LSCLPC","TAC","PMC","TDC")
-for (i in 1:nrow(hm_dn)) {
-  hm_dn_new[rownames(hm_dn_new)==hm_dn$gene[i],colnames(hm_dn_new)==hm_dn$celltype[i]] <- 1
-}
-hm_dn_new <-rbind(hm_dn_new[rowSums(hm_dn_new)==4,],
-                  hm_dn_new[rowSums(hm_dn_new)==3,],
-                  hm_dn_new[rowSums(hm_dn_new)==2,],
-                  hm_dn_new[rowSums(hm_dn_new)==1,])
-hm_dn_new <- hm_dn_new[,1:4]
-pheatmap(hm_dn_new,
-         color = colorRampPalette(c("grey", "blue"))(5),cluster_cols = F,cluster_rows = F,show_rownames = F)
-
-
-
-
-
-
-## Supplementary Fig. 5 b
-
-go_LSCLPC_up_BP <- enrichGO(LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                            pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_TAC_up_BP <- enrichGO(TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_PMC_up_BP <- enrichGO(PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_TDC_up_BP <- enrichGO(TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-
-df_up <- data.frame()
-for (i in ls() %>% grep(pattern = "^go",value = T) %>% grep(pattern = "up",value = T)) {
-  a <- paste0('temp <- data.frame(',i,')')
-  eval(parse(text=a))
-  print(a)
-  df_up <- rbind(df_up,
-                 data.frame(temp,celltype=(i %>% strsplit("_") %>% unlist())[2]))
-}
-df_up$celltype <- factor(df_up$celltype,levels = c("LSCLPC","TAC","PMC","TDC"))
-
-df_up_new <- df_up[df_up$Description %in% c("epithelial cell apoptotic process","mRNA catabolic process","cellular response to oxidative stress","response to oxidative stress","response to reactive oxygen species"),]
-df_up_new$bubblesize <- df_up_new$Count/max(df_up_new$Count)
-df_up_new$log <- -log10(df_up_new$p.adjust)
-
-ggplot(data=df_up_new, mapping=aes(x=celltype,y=Description,color=log))+
-  geom_point(stat= "identity",aes(size=Count),alpha=0.7,show.legend = TRUE)+ 
-  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
-  theme(panel.border = element_blank())+
-  theme_set(theme_bw()) +
-  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
-  theme(panel.border = element_blank())+
-  theme(axis.line.x=element_line(linetype=1,color="black",size=1),
-        axis.line.y=element_line(linetype=1,color="black",size=1),
-        axis.title.y = element_text(size = 13),
-        axis.text.x = element_text(face = "plain",size = 13,angle=90,hjust = 1,vjust = 0.5,colour = "black"),
-        axis.text.y = element_text(face = "plain",size = 12,colour = "black")) +
-  labs(x=element_blank(),y=element_blank(),col="-log10 adjusted p-value") +
-  scale_color_gradientn(colors = c(colorRampPalette(as.character(jdb_palette("brewer_heat")))(250))[126:250])
-
-
-
-
-
-go_LSCLPC_dn_BP <- enrichGO(LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                            pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_TAC_dn_BP <- enrichGO(TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_PMC_dn_BP <- enrichGO(PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-go_TDC_dn_BP <- enrichGO(TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
-                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
-
-df_dn <- data.frame()
-for (i in ls() %>% grep(pattern = "^go",value = T) %>% grep(pattern = "dn",value = T)) {
-  a <- paste0('temp <- data.frame(',i,')')
-  eval(parse(text=a))
-  print(a)
-  df_dn <- rbind(df_dn,
-                 data.frame(temp,celltype=(i %>% strsplit("_") %>% unlist())[2]))
-}
-df_dn$celltype <- factor(df_dn$celltype,levels = c("LSCLPC","TAC","PMC","TDC","Conjunctival","Melanocyte"))
-
-df_dn_new <- df_dn[df_dn$Description %in% c("cornification","epidermal cell differentiation","keratinocyte differentiation","positive regulation of response to wounding","positive regulation of wound healing"),]
-df_dn_new$bubblesize <- df_dn_new$Count/max(df_dn_new$Count)
-df_dn_new$log <- -log10(df_dn_new$p.adjust)
-
-ggplot(data=df_dn_new, mapping=aes(x=celltype,y=Description,color=log))+
-  geom_point(stat= "identity",aes(size=Count),alpha=0.7,show.legend = TRUE)+ 
-  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
-  theme(panel.border = element_blank())+
-  theme_set(theme_bw()) +
-  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
-  theme(panel.border = element_blank())+
-  theme(axis.line.x=element_line(linetype=1,color="black",size=1),
-        axis.line.y=element_line(linetype=1,color="black",size=1),
-        axis.title.y = element_text(size = 13),
-        axis.text.x = element_text(face = "plain",size = 13,angle=90,hjust = 1,vjust = 0.5,colour = "black"),
-        axis.text.y = element_text(face = "plain",size = 12,colour = "black")) +
-  labs(x=element_blank(),y=element_blank(),col="-log10 adjusted p-value") +
-  scale_color_gradientn(colors = c(colorRampPalette(as.character(jdb_palette("brewer_marine")))(250))[126:250])
 
 
 
@@ -349,3 +218,137 @@ ggboxplot(df, "celltype", "OXIDATIVE_PHOSPHORYLATION1", fill = "var" ) +
 ggboxplot(df, "celltype", "TCA1", fill = "var" ) +
   stat_compare_means(aes(group=var), label = "..p.format..",method = "t.test")+
   labs(y="TCA cycle gene set score",x="")
+
+
+
+
+
+## Supplementary Fig. 5 a
+
+hm_up <- rbind(data.frame(gene=LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="LSCLPC"),
+               data.frame(gene=TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="TAC"),
+               data.frame(gene=PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="PMC"),
+               data.frame(gene=TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC>=0.3,] %>% rownames(),celltype="TDC")
+)
+hm_up_new <- data.frame(gene=unique(hm_up$gene))
+hm_up_new[,2:5] <- 0
+hm_up_new <- hm_up_new[,-1]
+rownames(hm_up_new) <- unique(hm_up$gene)
+colnames(hm_up_new) <- c("LSCLPC","TAC","PMC","TDC")
+for (i in 1:nrow(hm_up)) {
+  hm_up_new[rownames(hm_up_new)==hm_up$gene[i],colnames(hm_up_new)==hm_up$celltype[i]] <- 1
+}
+hm_up_new <-rbind(hm_up_new[rowSums(hm_up_new)==4,],
+                  hm_up_new[rowSums(hm_up_new)==3,],
+                  hm_up_new[rowSums(hm_up_new)==2,],
+                  hm_up_new[rowSums(hm_up_new)==1,])
+hm_up_new <- hm_up_new[,1:4]
+pheatmap(hm_up_new,
+         color = colorRampPalette(c("grey", "red"))(5),cluster_cols = F,cluster_rows = F,show_rownames = F)
+
+hm_dn <- rbind(data.frame(gene=LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="LSCLPC"),
+               data.frame(gene=TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="TAC"),
+               data.frame(gene=PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="PMC"),
+               data.frame(gene=TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC<= -0.3,] %>% rownames(),celltype="TDC")
+)
+hm_dn_new <- data.frame(gene=unique(hm_dn$gene))
+hm_dn_new[,2:5] <- 0
+hm_dn_new <- hm_dn_new[,-1]
+rownames(hm_dn_new) <- unique(hm_dn$gene)
+colnames(hm_dn_new) <- c("LSCLPC","TAC","PMC","TDC")
+for (i in 1:nrow(hm_dn)) {
+  hm_dn_new[rownames(hm_dn_new)==hm_dn$gene[i],colnames(hm_dn_new)==hm_dn$celltype[i]] <- 1
+}
+hm_dn_new <-rbind(hm_dn_new[rowSums(hm_dn_new)==4,],
+                  hm_dn_new[rowSums(hm_dn_new)==3,],
+                  hm_dn_new[rowSums(hm_dn_new)==2,],
+                  hm_dn_new[rowSums(hm_dn_new)==1,])
+hm_dn_new <- hm_dn_new[,1:4]
+pheatmap(hm_dn_new,
+         color = colorRampPalette(c("grey", "blue"))(5),cluster_cols = F,cluster_rows = F,show_rownames = F)
+
+
+
+
+
+## Supplementary Fig. 5 b
+
+go_LSCLPC_up_BP <- enrichGO(LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                            pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_TAC_up_BP <- enrichGO(TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_PMC_up_BP <- enrichGO(PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_TDC_up_BP <- enrichGO(TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC>=0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+
+df_up <- data.frame()
+for (i in ls() %>% grep(pattern = "^go",value = T) %>% grep(pattern = "up",value = T)) {
+  a <- paste0('temp <- data.frame(',i,')')
+  eval(parse(text=a))
+  print(a)
+  df_up <- rbind(df_up,
+                 data.frame(temp,celltype=(i %>% strsplit("_") %>% unlist())[2]))
+}
+df_up$celltype <- factor(df_up$celltype,levels = c("LSCLPC","TAC","PMC","TDC"))
+
+df_up_new <- df_up[df_up$Description %in% c("epithelial cell apoptotic process","mRNA catabolic process","cellular response to oxidative stress","response to oxidative stress","response to reactive oxygen species"),]
+df_up_new$bubblesize <- df_up_new$Count/max(df_up_new$Count)
+df_up_new$log <- -log10(df_up_new$p.adjust)
+
+ggplot(data=df_up_new, mapping=aes(x=celltype,y=Description,color=log))+
+  geom_point(stat= "identity",aes(size=Count),alpha=0.7,show.legend = TRUE)+ 
+  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
+  theme(panel.border = element_blank())+
+  theme_set(theme_bw()) +
+  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
+  theme(panel.border = element_blank())+
+  theme(axis.line.x=element_line(linetype=1,color="black",size=1),
+        axis.line.y=element_line(linetype=1,color="black",size=1),
+        axis.title.y = element_text(size = 13),
+        axis.text.x = element_text(face = "plain",size = 13,angle=90,hjust = 1,vjust = 0.5,colour = "black"),
+        axis.text.y = element_text(face = "plain",size = 12,colour = "black")) +
+  labs(x=element_blank(),y=element_blank(),col="-log10 adjusted p-value") +
+  scale_color_gradientn(colors = c(colorRampPalette(as.character(jdb_palette("brewer_heat")))(250))[126:250])
+
+
+
+
+
+go_LSCLPC_dn_BP <- enrichGO(LSCLPC.diff[LSCLPC.diff$p_val_adj<=0.05 & LSCLPC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                            pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_TAC_dn_BP <- enrichGO(TAC.diff[TAC.diff$p_val_adj<=0.05 & TAC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_PMC_dn_BP <- enrichGO(PMC.diff[PMC.diff$p_val_adj<=0.05 & PMC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+go_TDC_dn_BP <- enrichGO(TDC.diff[TDC.diff$p_val_adj<=0.05 & TDC.diff$avg_logFC<=-0.3,] %>% rownames(), OrgDb = org.Hs.eg.db, keyType = "SYMBOL", ont = "BP",
+                         pvalueCutoff = 0.05, pAdjustMethod = "BH", qvalueCutoff = 0.2)
+
+df_dn <- data.frame()
+for (i in ls() %>% grep(pattern = "^go",value = T) %>% grep(pattern = "dn",value = T)) {
+  a <- paste0('temp <- data.frame(',i,')')
+  eval(parse(text=a))
+  print(a)
+  df_dn <- rbind(df_dn,
+                 data.frame(temp,celltype=(i %>% strsplit("_") %>% unlist())[2]))
+}
+df_dn$celltype <- factor(df_dn$celltype,levels = c("LSCLPC","TAC","PMC","TDC","Conjunctival","Melanocyte"))
+
+df_dn_new <- df_dn[df_dn$Description %in% c("cornification","epidermal cell differentiation","keratinocyte differentiation","positive regulation of response to wounding","positive regulation of wound healing"),]
+df_dn_new$bubblesize <- df_dn_new$Count/max(df_dn_new$Count)
+df_dn_new$log <- -log10(df_dn_new$p.adjust)
+
+ggplot(data=df_dn_new, mapping=aes(x=celltype,y=Description,color=log))+
+  geom_point(stat= "identity",aes(size=Count),alpha=0.7,show.legend = TRUE)+ 
+  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
+  theme(panel.border = element_blank())+
+  theme_set(theme_bw()) +
+  theme(panel.grid.major=element_line(colour=NA),panel.grid.minor=element_line(colour=NA))+
+  theme(panel.border = element_blank())+
+  theme(axis.line.x=element_line(linetype=1,color="black",size=1),
+        axis.line.y=element_line(linetype=1,color="black",size=1),
+        axis.title.y = element_text(size = 13),
+        axis.text.x = element_text(face = "plain",size = 13,angle=90,hjust = 1,vjust = 0.5,colour = "black"),
+        axis.text.y = element_text(face = "plain",size = 12,colour = "black")) +
+  labs(x=element_blank(),y=element_blank(),col="-log10 adjusted p-value") +
+  scale_color_gradientn(colors = c(colorRampPalette(as.character(jdb_palette("brewer_marine")))(250))[126:250])
